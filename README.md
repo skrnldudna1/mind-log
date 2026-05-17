@@ -1,37 +1,75 @@
-# 🧠 MindLog - AI 감성 리포트 달력 일기장
+<div align="center">
 
-> **Gemini AI와 Supabase를 연동하여 하루의 감정을 기록하고 분석받는 프라이빗 웹 서비스**
-> 
-> 투박한 일기장을 넘어 사용자의 감정을 따뜻하게 위로하고, 날짜별 기록을 모아볼 수 있는 모던한 모바일 중심의 웹 애플리케이션입니다.
+# MindLog
 
----
+### 기록은 내가 하고, 흐름 정리는 AI가
 
-## ✨ 주요 기능 (Key Features)
+<br />
 
-* **📝 AI 일기 분석**: 오늘 하루 있었던 일을 편하게 작성하면, Gemini AI가 핵심 내용을 **2줄 요약**해 줍니다.
-* **🌸 마음 테라피 피드백**: 작성된 감정에 공감하고 위로를 전하는 맞춤형 **심리 상담 피드백**을 제공합니다.
-* **📊 마음 아카이브 (리포트 달력)**: 그동안 작성한 일기 기록들을 데이터베이스에서 싹 긁어와 날짜별 카드 형태로 모아볼 수 있습니다.
-* **📱 모던 모바일 UI**: 깔끔하고 부드러운 라운드 처리와 세련된 그림자 효과를 적용한 보급형 앱 스타일 디자인.
+<img src="https://img.shields.io/badge/Next.js_15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+<img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
+<img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+<img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" />
 
----
+<br />
 
-## 🛠️ 사용 기술 (Tech Stack)
+<img src="https://img.shields.io/badge/Google_Gemini_1.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white" />
+<img src="https://img.shields.io/badge/Next.js_API_Routes-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" />
+<img src="https://img.shields.io/badge/Turbopack-FF1E56?style=for-the-badge&logo=vercel&logoColor=white" />
 
-* **Frontend**: `Next.js 14 (App Router)`, `React`, `TypeScript`
-* **Backend**: `Next.js Route Handlers (API)`
-* **AI Engine**: `Google Gemini AI API (@google/generative-ai)`
-* **Database**: `Supabase (PostgreSQL)`
-* **Package Manager**: `pnpm`
+</div>
 
 ---
 
-## 🚀 시작 가이드 (Getting Started)
+MindLog는  
+사용자의 기록을 AI가 분석하고 흐름을 정리해주는 개인 아카이브 프로젝트
 
-### 1. 환경 변수 세팅 (`.env.local`)
-프로젝트 루트 위치에 `.env.local` 파일을 생성하고 아래 키 값을 입력해야 작동합니다.
-(※ 보안을 위해 이 파일은 GitHub에 업로드되지 않습니다.)
+단순한 감정 일기보다는,
 
-```text
-GEMINI_API_KEY=your_gemini_api_key
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+- 어떤 생각을 반복하고 있는지
+- 어떤 감정 흐름이 이어지고 있는지
+- 투자 판단에 감정이 얼마나 개입됐는지
+- 어떤 루틴이 꾸준히 유지되고 있는지
+
+같은 패턴들을 기록 속에서 발견하는 데 집중
+
+---
+
+## Categories
+
+- **일상**  
+  하루, 감정, 생각, 혼잣말 기록
+
+- **투자**  
+  매매 기록보다 투자 당시의 판단과 심리 복기
+
+- **기록**  
+  운동 · 공부 · 루틴 등 자기관리 아카이빙
+
+- **아이디어**  
+  창작, 사업 아이디어, 메모 정리
+
+---
+
+## AI Features
+
+- AI 기반 기록 분석 및 요약
+- 감정 / 생각 흐름 정리
+- 투자 심리 분석
+- 반복되는 패턴 감지
+- 카테고리 자동 분류
+- 월간 기록 리포트
+- 감정 캘린더 시각화
+
+---
+
+## Stack
+
+```bash
+Next.js 15
+React
+TypeScript
+Tailwind CSS
+Supabase
+Google Gemini 1.5 Flash
