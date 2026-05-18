@@ -172,7 +172,16 @@ export default function HomePage() {
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
               <div>
-                <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#111214', margin: '0 0 8px 0' }}>🧠 MindLog</h1>
+
+                 {/* 🦙 알파카 이미지 추가 */}
+                <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img 
+                    src="/images/로그.png" 
+                    alt="MindLog Mascot" 
+                    style={{ width: '320px', height: '140px', objectFit: 'contain' }} 
+                  />
+                </Link>
+                
                 <p style={{ margin: 0, fontSize: '14px', color: '#4f46e5', fontWeight: '600' }}>✨ {currentDisplayName}님의 공간</p>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>

@@ -1,4 +1,4 @@
-//인사말 & 버튼
+// app/_main_components/HomeHeader.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -19,19 +19,16 @@ interface HomeHeaderProps {
 
 export default function HomeHeader({ userName = '사용자', recordCount = 0, userEmail = '' }: HomeHeaderProps) {
   const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // 드롭다운 팝업 상태
-  const [isModalOpen, setIsModalOpen] = useState(false); // 닉네임 변경 모달 상태
-  const [newNickname, setNewNickname] = useState(userName); // 입력한 새 닉네임 상태
-  const [isUpdating, setIsUpdating] = useState(false);
-  
+  const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const menuRef = useRef<HTMLDivElement>(null);
+  
+  // 📸 진짜 프로필 이미지 URL 상태
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
 
-  // 컴포넌트가 로드되거나 userName 프로필이 바뀌면 입력 필드 동기화
-  useEffect(() => {
-    setNewNickname(userName);
-  }, [userName]);
+  const isLoggedIn = !!userEmail;
+  
 
-  // 프로필 외부 영역 클릭 시 드롭다운 자동으로 닫히기
+  // 메뉴 바깥 클릭 시 드롭다운 닫기
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -42,44 +39,77 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 🚪 로그아웃 기능
+  // 🔄 [긴급 수정] 404 에러를 유발하는 profiles 테이블 조회를 제거하고 세션 메타데이터에서 직접 추출
+  useEffect(() => {
+    async function loadDirectAvatar() {
+      if (!isLoggedIn) {
+        setAvatarUrl('');
+        return;
+      }
+
+      try {
+        // 1. 현재 로그인한 유저의 세션 정보를 가져옵니다.
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // 2. 유저 정보나 메타데이터가 있으면 그 안의 avatar_url이나 picture 확인
+        if (user) {
+          // 구글 로그인인 경우 user_metadata.picture에, 마이페이지 저장 방식에 따라 avatar_url에 주소가 들어있습니다.
+          const rawAvatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture;
+
+          if (rawAvatarUrl) {
+            // 주소가 이미 완전한 URL 형태(http...)라면 그대로 쓰고, 파일명만 들어있다면 Storage 주소로 변환합니다.
+            if (rawAvatarUrl.startsWith('http')) {
+              setAvatarUrl(rawAvatarUrl);
+            } else {
+              const { data } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(rawAvatarUrl);
+
+              if (data?.publicUrl) {
+                setAvatarUrl(data.publicUrl);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error('메인 헤더 이미지 직통 로드 실패:', err);
+      }
+    }
+
+    loadDirectAvatar();
+  }, [userEmail, isLoggedIn]);
+
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       alert('로그아웃 중 오류가 발생했습니다.');
     } else {
-      router.refresh();
+      setIsMenuOpen(false);
+      setAvatarUrl('');
+      router.refresh(); 
     }
   };
 
-  // 📝 Supabase Auth 메타데이터에 새 닉네임 저장하는 기능
-  const handleUpdateNickname = async () => {
-    if (!newNickname.trim()) {
-      alert('닉네임을 입력해 주세요.');
-      return;
-    }
-    
+  const handleGoogleLogin = async () => {
     try {
-      setIsUpdating(true);
-      // 유저의 user_metadata 안에 nickname 필드를 업데이트합니다.
-      const { error } = await supabase.auth.updateUser({
-        data: { nickname: newNickname.trim() }
+      setIsMenuOpen(false);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}` : '',
+        },
       });
-
       if (error) throw error;
-
-      alert('닉네임이 성공적으로 변경되었습니다! ✨');
-      setIsModalOpen(false);
-      router.refresh(); // 변경 사항 반영을 위해 메인 새로고침 효과
-    } catch (err) {
-      console.error(err);
-      alert('닉네임 변경 중 오류가 발생했습니다.');
-    } finally {
-      setIsUpdating(false);
+    } catch (err: any) {
+      console.error('구글 로그인 에러:', err.message);
+      alert('로그인 연결 중 오류가 발생했습니다.');
     }
   };
 
   const getSubMessage = () => {
+    if (!isLoggedIn) {
+      return '나만의 기록을 안전하게 보관하려면 로그인이 필요해요. 😉';
+    }
     if (recordCount === 0) {
       return '아직 비어있는 공간이네요. 오늘의 가벼운 생각부터 시작해볼까요? ✍️';
     }
@@ -89,7 +119,7 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
     return `이번 달 벌써 ${recordCount}개의 생각이 모였어요. 나만의 흐름이 단단해지는 중! 🌿`;
   };
 
-  const avatarInitial = userName ? userName.charAt(0).toUpperCase() : 'U';
+  const avatarInitial = isLoggedIn && userName ? userName.charAt(0).toUpperCase() : '?';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '100%', fontFamily: 'sans-serif' }}>
@@ -99,10 +129,14 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         padding: '16px 0', borderBottom: '1px solid #f1f5f9', position: 'relative'
       }}>
-        <Link href="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontSize: '18px', fontWeight: '900', color: '#4f46e5', letterSpacing: '-0.3px' }}>
-            🧠 마인드 로그
-          </span>
+        
+      {/* 🦙 알파카 이미지 추가 */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img 
+            src="/images/로그.png" 
+            alt="MindLog Mascot" 
+            style={{ width: '320px', height: '140px', objectFit: 'contain' }} 
+          />
         </Link>
 
         {/* 미니 프로필 아바타 버튼 */}
@@ -116,19 +150,30 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
+          {/* 아바타 원형 구역 */}
           <div style={{
             width: '32px', height: '32px', borderRadius: '50%',
-            backgroundColor: '#e0e7ff', color: '#4f46e5',
+            backgroundColor: isLoggedIn ? '#e0e7ff' : '#f1f5f9', 
+            color: isLoggedIn ? '#4f46e5' : '#64748b',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '13px', fontWeight: '800'
+            fontSize: '13px', fontWeight: '800', overflow: 'hidden', position: 'relative'
           }}>
-            {avatarInitial}
+            {avatarUrl ? (
+              <img 
+                src={avatarUrl} 
+                alt="Profile" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                onError={() => setAvatarUrl('')} 
+              />
+            ) : (
+              avatarInitial
+            )}
           </div>
           <span style={{ fontSize: '13px', fontWeight: '700', color: '#334155' }}>
-            {userName} ▾
+            {isLoggedIn ? userName : 'GUEST'} ▾
           </span>
 
-          {/* ▾ 내 프로필 누르면 내려오는 드롭다운 메뉴 */}
+          {/* 드롭다운 메뉴 영역 */}
           {isMenuOpen && (
             <div style={{
               position: 'absolute', top: '55px', right: '0',
@@ -139,49 +184,38 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
             }}
             onClick={(e) => e.stopPropagation()} 
             >
-              {/* ✏️ 서비스 정보 대신 [닉네임 변경] 주입! */}
-              <button 
-                onClick={() => {
-                  setIsModalOpen(true);
-                  setIsMenuOpen(false); // 메뉴 레이어는 닫아주기
-                }}
-                style={{
-                  textAlign: 'left', backgroundColor: 'transparent', border: 'none',
-                  padding: '10px 12px', borderRadius: '10px', fontSize: '13px',
-                  fontWeight: '600', color: '#334155', cursor: 'pointer', transition: 'background 0.15s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                ✏️ 닉네임 변경
-              </button>
+              {isLoggedIn ? (
+                <>
+                  <Link href="/mypage" style={{ textDecoration: 'none' }} onClick={() => setIsMenuOpen(false)}>
+                    <div style={menuItemStyle} onMouseEnter={toggleHoverIn} onMouseLeave={toggleHoverOut}>
+                      👤 내 프로필
+                    </div>
+                  </Link>
 
-              <Link href="/report" style={{ textDecoration: 'none' }}>
-                <div style={{
-                  textAlign: 'left', padding: '10px 12px', borderRadius: '10px', fontSize: '13px',
-                  fontWeight: '600', color: '#4f46e5', transition: 'background 0.15s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                >
-                  📊 전체 리포트 목록
-                </div>
-              </Link>
+                  <Link href="/report" style={{ textDecoration: 'none' }} onClick={() => setIsMenuOpen(false)}>
+                    <div style={{ ...menuItemStyle, color: '#4f46e5' }} onMouseEnter={toggleHoverInPurple} onMouseLeave={toggleHoverOut}>
+                      📊 전체 리포트 목록
+                    </div>
+                  </Link>
 
-              <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '4px 0' }} />
+                  <hr style={{ border: 'none', borderTop: '1px solid #f1f5f9', margin: '4px 0' }} />
 
-              <button 
-                onClick={handleLogout}
-                style={{
-                  textAlign: 'left', backgroundColor: 'transparent', border: 'none',
-                  padding: '10px 12px', borderRadius: '10px', fontSize: '13px',
-                  fontWeight: '600', color: '#ef4444', cursor: 'pointer', transition: 'background 0.15s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-              >
-                🚪 로그아웃
-              </button>
+                  <button onClick={handleLogout} style={menuButtonStyle} onMouseEnter={toggleHoverInRed} onMouseLeave={toggleHoverOut}>
+                    🚪 로그아웃
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div 
+                    onClick={handleGoogleLogin}
+                    style={{ ...menuItemStyle, color: '#4f46e5', fontWeight: '700', textAlign: 'center' }} 
+                    onMouseEnter={toggleHoverInPurple} 
+                    onMouseLeave={toggleHoverOut}
+                  >
+                    🔑 로그인하기
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -191,96 +225,51 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '8px' }}>
         <div>
           <h1 style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 6px 0', letterSpacing: '-0.5px' }}>
-            오늘 어떤 하루였나요, {userName}님?
+            {isLoggedIn ? `오늘 어떤 하루였나요, ${userName}님?` : '반갑습니다! 방문자님'}
           </h1>
           <p style={{ fontSize: '14px', fontWeight: '500', color: '#64748b', margin: 0 }}>
             {getSubMessage()}
           </p>
         </div>
 
-        <Link href="/write" style={{ textDecoration: 'none' }}>
-          <button style={{
-            display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#4f46e5',
-            color: '#ffffff', border: 'none', padding: '12px 20px', borderRadius: '14px',
-            fontSize: '14px', fontWeight: '700', cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)', transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#4338ca';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#4f46e5';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-          >
-            <span style={{ fontSize: '16px' }}>+</span> 기록하기
-          </button>
-        </Link>
+        {isLoggedIn && (
+          <Link href="/write" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#bdb7b3',
+              color: '#ffffff', border: 'none', padding: '12px 20px', borderRadius: '14px',
+              fontSize: '14px', fontWeight: '700', cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)', transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#bdb7b3';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#bdb7b3';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            >
+              <span style={{ fontSize: '16px' }}>+</span> 기록하기
+            </button>
+          </Link>
+        )}
       </div>
-
-      {/* 🔮 [NEW] 닉네임 수정을 위한 세련된 팝업 모달창 */}
-      {isModalOpen && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)',
-          display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
-        }}>
-          <div style={{
-            backgroundColor: '#ffffff', padding: '28px', borderRadius: '24px',
-            width: '90%', maxWidth: '380px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'
-          }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: '17px', fontWeight: '800', color: '#0f172a' }}>
-              새로운 이름 설정
-            </h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: '13px', color: '#64748b', fontWeight: '500' }}>
-              마인드 로그 대문에 표시될 나만의 닉네임을 입력해 주세요.
-            </p>
-
-            <input 
-              type="text"
-              value={newNickname}
-              onChange={(e) => setNewNickname(e.target.value)}
-              placeholder="닉네임 입력"
-              maxLength={15}
-              style={{
-                width: '100%', padding: '12px 16px', borderRadius: '12px',
-                border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: '600',
-                color: '#1e293b', outline: 'none', boxSizing: 'border-box',
-                marginBottom: '20px'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#4f46e5'}
-              onBlur={(e) => e.target.style.borderColor = '#cbd5e1'}
-            />
-
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                disabled={isUpdating}
-                style={{
-                  backgroundColor: '#f1f5f9', color: '#64748b', border: 'none',
-                  padding: '10px 16px', borderRadius: '10px', fontSize: '13px',
-                  fontWeight: '700', cursor: 'pointer'
-                }}
-              >
-                취소
-              </button>
-              <button 
-                onClick={handleUpdateNickname}
-                disabled={isUpdating}
-                style={{
-                  backgroundColor: '#4f46e5', color: '#ffffff', border: 'none',
-                  padding: '10px 16px', borderRadius: '10px', fontSize: '13px',
-                  fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 10px rgba(79, 70, 229, 0.15)'
-                }}
-              >
-                {isUpdating ? '변경 중...' : '변경 완료'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }
+
+const menuItemStyle = {
+  textAlign: 'left' as const, padding: '10px 12px', borderRadius: '10px', fontSize: '13px',
+  fontWeight: '600', color: '#334155', transition: 'background 0.15s', cursor: 'pointer'
+};
+
+const menuButtonStyle = {
+  textAlign: 'left' as const, backgroundColor: 'transparent', border: 'none',
+  padding: '10px 12px', borderRadius: '10px', fontSize: '13px',
+  fontWeight: '600', color: '#ef4444', cursor: 'pointer', transition: 'background 0.15s', width: '100%'
+};
+
+const toggleHoverIn = (e: any) => e.currentTarget.style.backgroundColor = '#f8fafc';
+const toggleHoverInPurple = (e: any) => e.currentTarget.style.backgroundColor = '#f5f3ff';
+const toggleHoverInRed = (e: any) => e.currentTarget.style.backgroundColor = '#fef2f2';
+const toggleHoverOut = (e: any) => e.currentTarget.style.backgroundColor = 'transparent';

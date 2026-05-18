@@ -78,7 +78,16 @@ export default function ReportPage() {
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
       <main style={{ maxWidth: '640px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '800' }}>📊 마인드 리포트</h1>
+          
+          {/* 🦙 알파카 이미지 추가 */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img 
+            src="/images/로그.png" 
+            alt="MindLog Mascot" 
+            style={{ width: '320px', height: '140px', objectFit: 'contain' }} 
+          />
+        </Link>
+        
           <Link href="/" style={{ fontSize: '14px', color: '#4f46e5', textDecoration: 'none', fontWeight: '600' }}>← 기록하러 가기</Link>
         </div>
 

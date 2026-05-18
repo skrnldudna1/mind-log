@@ -94,9 +94,14 @@ export default function InvestmentPage() {
         {/* 상단바 디자인 통일 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ backgroundColor: '#0f172a', color: '#fff', padding: '6px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: '800' }}>
-              📈 NEW INVESTMENT RECORD
-            </span>
+             {/* 🦙 알파카 이미지 추가 */}
+                <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img 
+                    src="/images/로그.png" 
+                    alt="MindLog Mascot" 
+                    style={{ width: '320px', height: '140px', objectFit: 'contain' }} 
+                  />
+                </Link>
           </div>
           <Link href="/" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: '600' }}>
             ← 메인으로 가기
@@ -178,9 +183,9 @@ export default function InvestmentPage() {
             <button
               onClick={handleAnalyze}
               disabled={loading}
-              style={{ width: '100%', backgroundColor: loading ? '#94a3b8' : '#0f172a', color: '#fff', border: 'none', padding: '18px', borderRadius: '16px', fontSize: '16px', fontWeight: '800', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '10px', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)' }}
+              style={{ width: '100%', backgroundColor: loading ? '#94a3b8' : '#bdb7b3', color: '#fff', border: 'none', padding: '18px', borderRadius: '16px', fontSize: '16px', fontWeight: '800', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '10px', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)' }}
             >
-              {loading ? '🔮 AI가 매매 패턴 분석 중...' : '✨ 이성적으로 복기 완료하기'}
+              {loading ? '🔮 AI가 매매 패턴 분석 중...' : '복기 완료'}
             </button>
 
           </div>
