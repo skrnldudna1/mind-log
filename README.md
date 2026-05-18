@@ -1,6 +1,11 @@
 <div align="center">
 
-<img width="500" height="500" alt="알파카-removebg-preview" src="https://github.com/user-attachments/assets/a61e816d-5a79-4671-9ea6-2ea6ab96c451" />
+<a href="https://mind-log-cyan.vercel.app/" target="_blank">
+  <img width="500" height="500" alt="알파카-removebg-preview" src="https://github.com/user-attachments/assets/a61e816d-5a79-4671-9ea6-2ea6ab96c451" />
+</a>
+
+### 🚀 [클릭 시 MindLog 배포 사이트로 이동합니다!](https://mind-log-cyan.vercel.app/)
+
 
 ## MindLog
 
@@ -71,3 +76,4 @@ TypeScript
 Tailwind CSS
 Supabase
 Google Gemini 1.5 Flash
+vercel
