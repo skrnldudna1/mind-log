@@ -136,7 +136,6 @@ export default function ReportPage() {
         </div>
 
         {/* 📜 기록 리스트 */}
-        {/* 📜 기록 리스트 */}
 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
   {filteredDiaries.length === 0 ? (
     <p style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>해당 카테고리에 기록된 내용이 없습니다. 🌸</p>

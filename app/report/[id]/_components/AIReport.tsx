@@ -1,5 +1,4 @@
-//AI 피드백 전용 컴포넌트
-
+// AI 피드백 전용 컴포넌트
 'use client';
 
 interface AIReportProps {
@@ -19,31 +18,35 @@ export default function AIReport({ category, summary, feedback }: AIReportProps)
       .trim();
   };
 
-  return (
-    <div style={{ backgroundColor: '#fff', borderRadius: '24px', padding: '30px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
-      <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a', margin: '0 0 25px 0' }}>
-        {category === '투자' ? '🧠 AI 마켓 인사이트 & 피드백' : '🧠 AI 마인드 리포트'}
-      </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        
-        {/* 1. 한줄 핵심 요약 */}
-        <div style={{ backgroundColor: '#f8fafc', padding: '20px', borderRadius: '16px', borderLeft: '5px solid #3b82f6' }}>
-          <span style={{ color: '#2563eb', fontWeight: '800', fontSize: '14px' }}>한줄 핵심 요약</span>
-          {/* 💡 whiteSpace: 'pre-wrap' 추가 */}
-          <p style={{ margin: '10px 0 0 0', fontSize: '15px', color: '#1e3a8a', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
-            {cleanAIResponse(summary)}
-          </p>
-        </div>
-        
-        {/* 2. AI의 심리 분석 및 조언 */}
-        <div style={{ backgroundColor: category === '투자' ? '#fff7ed' : '#f0fdf4', padding: '20px', borderRadius: '16px', borderLeft: category === '투자' ? '5px solid #f97316' : '5px solid #22c55e' }}>
-          <span style={{ color: category === '투자' ? '#c2410c' : '#15803d', fontWeight: '800', fontSize: '14px' }}>AI의 심리 분석 및 조언</span>
-          {/* 💡여기에 whiteSpace: 'pre-wrap'이 있어야 줄바꿈이 정상 작동합니다! */}
-          <p style={{ margin: '10px 0 0 0', fontSize: '15px', color: '#431407', lineHeight: '1.8', whiteSpace: 'pre-wrap' }}>
-            {cleanAIResponse(feedback)}
-          </p>
-        </div>
+  // 기존 데이터(요약과 피드백)가 둘 다 있으면 줄바꿈을 넣어서 하나로 합쳐줍니다.
+  const displaySummary = cleanAIResponse(summary);
+  const displayFeedback = cleanAIResponse(feedback);
+  const combinedText = [displaySummary, displayFeedback].filter(Boolean).join('\n\n');
 
+  return (
+    // 🎨 [바깥 박스] 올 화이트 배경 + 큼직한 라운딩(32px) + 부드러운 미세 그림자
+    <div className="w-full rounded-[32px] bg-white p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-[#f1f5f9]">
+      
+      {/* 텍스트 타이틀 */}
+      <h3 className="text-[18px] font-bold text-[#0f172a] mb-6 tracking-tight">
+        {category === '투자' ? 'AI 마켓 인사이트' : 'AI 마인드 리포트'}
+      </h3>
+      
+      {/* 🎨 [내부 박스] 스크린샷의 차분한 회색 배경색(#f4f6f8) 단일 박스로 통합 */}
+      <div className="rounded-[20px] bg-[#f4f6f8] px-8 py-7">
+        
+        {/* 내부 고정 소제목 */}
+        <span className="text-[14px] font-bold text-[#0f172a] mb-3 block">
+          AI가 정리한 오늘의 마음 & 피드백
+        </span>
+        
+        {/* 뭉쳐서 나오는 본문 영역 (줄바꿈 pre-wrap 완벽 보존) */}
+        <p 
+          className="text-[15px] leading-relaxed text-[#334155] font-medium mt-2"
+          style={{ whiteSpace: 'pre-wrap' }} 
+        >
+          {combinedText || "---"}
+        </p>
       </div>
     </div>
   );

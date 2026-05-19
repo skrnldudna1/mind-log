@@ -1,4 +1,3 @@
-// app/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -18,15 +17,22 @@ const supabase = createClient(
 export default function HomePage() {
   const [diaries, setDiaries] = useState<any[]>([]);
   const [nickname, setNickname] = useState('사용자');
-  const [email, setEmail] = useState(''); // [NEW] 유저 이메일 저장 상태
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // 이미지 태그와 HTML 태그를 제거하는 함수
+  const stripHtmlTags = (html: string) => {
+    if (!html) return '';
+    const textOnly = html.replace(/<img[^>]*>/g, '');
+    return textOnly.replace(/<[^>]*>/g, '');
+  };
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
         setLoading(true);
         
-        // 1. 유저 정보 및 프로필 닉네임 로드
+        // 1. 유저 정보 로드
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           setEmail(user.email || '');
@@ -49,9 +55,14 @@ export default function HomePage() {
         setLoading(false);
       }
     };
-
     fetchHomeData();
   }, []);
+
+  // 3. RecentCards용으로 이미지를 제거한 텍스트 전용 데이터 생성
+  const cleanDiaries = diaries.map(diary => ({
+    ...diary,
+    content: stripHtmlTags(diary.content || '')
+  }));
 
   if (loading) {
     return (
@@ -69,7 +80,7 @@ export default function HomePage() {
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', padding: '0 20px 80px 20px' }}>
       <main style={{ maxWidth: '640px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
-        {/* 상단 탭바를 품은 뉴 헤더 컴포넌트 */}
+        {/* 상단 헤더 */}
         <HomeHeader userName={nickname} recordCount={diaries.length} userEmail={email} />
 
         {/* 🌿 잔디밭 */}
@@ -81,8 +92,8 @@ export default function HomePage() {
         {/* 📊 월간 흐름 요약 */}
         <MonthlyStats diaries={diaries} />
 
-        {/* 🗂️ 최근 기록 복기 카드 */}
-        <RecentCards diaries={diaries} />
+        {/* 🗂️ 최근 기록 복기 카드 (이미지 없는 cleanDiaries 전달) */}
+        <RecentCards diaries={cleanDiaries} />
 
       </main>
     </div>

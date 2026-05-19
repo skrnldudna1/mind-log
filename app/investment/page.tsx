@@ -1,9 +1,9 @@
-// app/investment/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
+import TiptapEditor from '../report/[id]/_components/TiptapEditor'; // 경로를 실제 위치에 맞게 조정하세요!
 import Link from 'next/link';
 
 const supabase = createClient(
@@ -18,9 +18,9 @@ export default function InvestmentPage() {
   const [authChecking, setAuthChecking] = useState(true);
 
   const [ticker, setTicker] = useState('');
-  const [action, setAction] = useState(''); 
-  const [emotion, setEmotion] = useState(''); 
-  const [diary, setDiary] = useState('');
+  const [action, setAction] = useState('');
+  const [emotion, setEmotion] = useState('');
+  const [diary, setDiary] = useState(''); // Tiptap이 생성하는 HTML 문자열
 
   useEffect(() => {
     const checkUser = async () => {
@@ -40,7 +40,8 @@ export default function InvestmentPage() {
     if (!ticker.trim()) return alert('투자 종목을 입력해 주세요.');
     if (!action) return alert('포지션 결정을 선택해 주세요.');
     if (!emotion) return alert('진입 당시 심리를 선택해 주세요.');
-    if (!diary.trim()) return alert('자유 판단 기록을 적어주세요.');
+    if (!diary.trim() || diary === '<p></p>') return alert('자유 판단 기록을 적어주세요.');
+    
     setLoading(true);
 
     try {
@@ -57,26 +58,22 @@ export default function InvestmentPage() {
       if (res.ok) {
         const { data: dbData, error: dbError } = await supabase
           .from('diaries')
-          .insert([
-            {
-              user_id: user.id,
-              content: diary,
-              summary: aiData.summary,
-              feedback: aiData.feedback,
-              category: '투자',
-              ticker: ticker.trim(),
-              action: action,
-              emotion: emotion
-            }
-          ])
+          .insert([{
+            user_id: user.id,
+            content: diary, // Tiptap의 HTML 데이터
+            summary: aiData.summary,
+            feedback: aiData.feedback,
+            category: '투자',
+            ticker: ticker.trim(),
+            action: action,
+            emotion: emotion,
+          }])
           .select();
 
         if (dbError) throw new Error(dbError.message);
 
-        alert('📈 투자 복기 작성이 완료되었습니다. AI 분석 결과를 확인하세요!');
+        alert('📈 투자 복기 작성이 완료되었습니다.');
         router.push(`/report/${dbData[0].id}`);
-      } else {
-        alert(aiData.error || 'AI 서버가 잠시 혼잡합니다.');
       }
     } catch (err: any) {
       alert(`저장 중 오류 발생: ${err.message}`);
@@ -85,112 +82,62 @@ export default function InvestmentPage() {
     }
   };
 
-  if (authChecking) return <div style={{ textAlign: 'center', padding: '100px', backgroundColor: '#f8f9fa', minHeight: '100vh' }}>보안 세션 확인 중... 🔐</div>;
+  if (authChecking) return <div style={{ textAlign: 'center', padding: '100px' }}>보안 세션 확인 중... 🔐</div>;
 
   return (
-    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '40px 20px', fontFamily: 'sans-serif' }}>
+    
+    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', padding: '40px 20px' }}>
       <main style={{ maxWidth: '640px', margin: '0 auto' }}>
-        
-        {/* 상단바 디자인 통일 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-             {/* 🦙 알파카 이미지 추가 */}
-                <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <img 
-                    src="/images/로그.png" 
-                    alt="MindLog Mascot" 
-                    style={{ width: '320px', height: '140px', objectFit: 'contain' }} 
-                  />
-                </Link>
-          </div>
-          <Link href="/" style={{ fontSize: '14px', color: '#64748b', textDecoration: 'none', fontWeight: '600' }}>
-            ← 메인으로 가기
-          </Link>
-        </div>
-
-        {/* 📝 메인 작성 카드 (상세 페이지와 동일한 화이트 카드 스타일) */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '24px', padding: '35px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)' }}>
+        <div style={{ backgroundColor: '#fff', borderRadius: '24px', padding: '35px', border: '1px solid #f1f5f9' }}>
           
-          <h2 style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a', margin: '0 0 10px 0' }}>투자 판단 복기하기</h2>
-          <p style={{ margin: '0 0 30px 0', fontSize: '14px', color: '#94a3b8', lineHeight: '1.5' }}>
-            오늘의 매매는 이성적이었나요? 감정과 판단 근거를 솔직하게 기록하세요.
-          </p>
+ {/* 🦙 알파카 이미지 추가 */}
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img 
+            src="/images/로그.png" 
+            alt="MindLog Mascot" 
+            style={{ width: '320px', height: '140px', objectFit: 'contain' }} 
+          />
+        </Link>
 
+          
+          <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '20px' }}>투자 판단 복기하기</h2>
+
+          {/* 종목, 포지션, 심리 입력란은 동일하게 유지 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-            
-            {/* 1. 종목명 */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>1. 투자 종목명</label>
-              <input 
-                type="text"
-                value={ticker}
-                onChange={(e) => setTicker(e.target.value)}
-                placeholder="예: 테슬라, SOXL, 비트코인"
-                style={{ width: '100%', padding: '14px 18px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '16px', fontWeight: '600', outline: 'none', boxSizing: 'border-box', backgroundColor: '#fafafa' }}
-              />
+              <label style={{ fontWeight: '700', fontSize: '13px', color: '#64748b' }}>1. 투자 종목명</label>
+              <input type="text" value={ticker} onChange={(e) => setTicker(e.target.value)} style={{ width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid #cbd5e1' }} />
             </div>
 
-            {/* 2. 포지션 결정 */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>2. 포지션 결정</label>
+              <label style={{ fontWeight: '700', fontSize: '13px', color: '#64748b' }}>2. 포지션 결정</label>
               <div style={{ display: 'flex', gap: '10px' }}>
-                {['매수', '매도', '관망', '물타기/불타기'].map((act) => {
-                  const isAct = action === act;
-                  return (
-                    <button key={act} onClick={() => setAction(act)} style={{
-                      flex: 1, padding: '14px 0', borderRadius: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s',
-                      border: isAct ? '2px solid #ef4444' : '1px solid #e2e8f0',
-                      backgroundColor: isAct ? '#fef2f2' : '#fff', color: isAct ? '#ef4444' : '#64748b'
-                    }}>
-                      {act}
-                    </button>
-                  );
-                })}
+                {['매수', '매도', '관망', '물타기/불타기'].map((act) => (
+                  <button key={act} onClick={() => setAction(act)} style={{ flex: 1, padding: '14px', borderRadius: '14px', border: action === act ? '2px solid #ef4444' : '1px solid #e2e8f0', backgroundColor: action === act ? '#fef2f2' : '#fff' }}>{act}</button>
+                ))}
               </div>
             </div>
 
-            {/* 3. 진입 당시 심리 */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>3. 진입 당시 심리</label>
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {['확신', '불안/초조', 'FOMO (소외감)', '평온'].map((emo) => {
-                  const isEmo = emotion === emo;
-                  return (
-                    <button key={emo} onClick={() => setEmotion(emo)} style={{
-                      padding: '12px 20px', borderRadius: '14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s',
-                      border: isEmo ? '2px solid #f59e0b' : '1px solid #e2e8f0',
-                      backgroundColor: isEmo ? '#fffbeb' : '#fff', color: isEmo ? '#b45309' : '#64748b'
-                    }}>
-                      {emo}
-                    </button>
-                  );
-                })}
+              <label style={{ fontWeight: '700', fontSize: '13px', color: '#64748b' }}>3. 진입 당시 심리</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {['확신', '불안/초조', 'FOMO (소외감)', '평온'].map((emo) => (
+                  <button key={emo} onClick={() => setEmotion(emo)} style={{ padding: '12px 20px', borderRadius: '14px', border: emotion === emo ? '2px solid #f59e0b' : '1px solid #e2e8f0', backgroundColor: emotion === emo ? '#fffbeb' : '#fff' }}>{emo}</button>
+                ))}
               </div>
             </div>
 
-            {/* 4. 자유 판단 기록 */}
+            {/* Tiptap 에디터 도입 (기존 textarea 제거) */}
             <div>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#64748b', marginBottom: '8px' }}>4. 자유 판단 기록 (이유와 반성)</label>
-              <textarea
-                value={diary}
-                onChange={(e) => setDiary(e.target.value)}
-                placeholder="오늘 매매의 근거와 현재 느끼는 감정을 솔직하게 적어주세요. 훗날 이 기록이 당신의 실수를 줄여줄 것입니다."
-                style={{ width: '100%', height: '180px', padding: '18px', borderRadius: '16px', border: '1px solid #cbd5e1', fontSize: '16px', lineHeight: '1.7', resize: 'none', outline: 'none', boxSizing: 'border-box', backgroundColor: '#fafafa', fontFamily: 'inherit' }}
-              />
+              <label style={{ fontWeight: '700', fontSize: '13px', color: '#64748b', marginBottom: '8px', display: 'block' }}>4. 자유 판단 기록 (이유와 반성)</label>
+              <TiptapEditor content={diary} onChange={setDiary} />
             </div>
 
-            {/* 분석 완료 버튼 */}
-            <button
-              onClick={handleAnalyze}
-              disabled={loading}
-              style={{ width: '100%', backgroundColor: loading ? '#94a3b8' : '#bdb7b3', color: '#fff', border: 'none', padding: '18px', borderRadius: '16px', fontSize: '16px', fontWeight: '800', cursor: loading ? 'not-allowed' : 'pointer', marginTop: '10px', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)' }}
-            >
-              {loading ? '🔮 AI가 매매 패턴 분석 중...' : '복기 완료'}
+            <button onClick={handleAnalyze} disabled={loading} style={{ width: '100%', padding: '18px', borderRadius: '16px', backgroundColor: loading ? '#94a3b8' : '#bdb7b3', color: '#fff', fontWeight: '800', cursor: 'pointer' }}>
+              {loading ? '🔮 AI 분석 및 저장 중...' : '복기 완료'}
             </button>
-
           </div>
         </div>
-
       </main>
     </div>
   );

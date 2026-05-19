@@ -81,6 +81,7 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
+    window.location.reload();
     if (error) {
       alert('로그아웃 중 오류가 발생했습니다.');
     } else {
@@ -206,14 +207,15 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
                 </>
               ) : (
                 <>
-                  <div 
-                    onClick={handleGoogleLogin}
-                    style={{ ...menuItemStyle, color: '#4f46e5', fontWeight: '700', textAlign: 'center' }} 
-                    onMouseEnter={toggleHoverInPurple} 
-                    onMouseLeave={toggleHoverOut}
-                  >
-                    🔑 로그인하기
-                  </div>
+                  <Link href="/login" style={{ textDecoration: 'none' }} onClick={() => setIsMenuOpen(false)}>
+                    <div 
+                      style={{ ...menuItemStyle, color: '#4f46e5', fontWeight: '700', textAlign: 'center' }} 
+                      onMouseEnter={toggleHoverInPurple} 
+                      onMouseLeave={toggleHoverOut}
+                    >
+                       로그인하기
+                    </div>
+                  </Link>
                 </>
               )}
             </div>

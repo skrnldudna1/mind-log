@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     // 🔗 최신 라이브러리 문법인 ai.models.generateContent를 사용합니다!
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       contents: `
         유저 이름: ${nickname}
         아래는 이 유저가 한 달 동안 작성한 다양한 카테고리의 기록들이다:

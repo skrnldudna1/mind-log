@@ -48,17 +48,20 @@ export default function DiaryViewer({ diary, onEdit, onDelete }: DiaryViewerProp
           {/* 4. 자유 복기 */}
           <div style={{ marginTop: '5px', paddingTop: '15px', borderTop: '1px dashed #e2e8f0' }}>
             <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#64748b', fontWeight: '700' }}>4. 자유 판단 기록 (이유와 반성)</h4>
-            <p style={{ fontSize: '16px', color: '#1e293b', lineHeight: '1.8', whiteSpace: 'pre-wrap', margin: 0 }}>
-              {diary.content}
-            </p>
+            
+            {/* <p> 태그를 <div>로 바꾸고 아래 속성을 추가합니다 */}
+            <div 
+              style={{ fontSize: '16px', color: '#1e293b', lineHeight: '1.8', margin: 0 }}
+              dangerouslySetInnerHTML={{ __html: diary.content }} 
+            />
           </div>
         </div>
       ) : (
         /* 일반 일기용 보기 출력 */
-        <div>
-          <h4 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#64748b', fontWeight: '700' }}>작성 내용</h4>
-          <p style={{ fontSize: '16px', color: '#1e293b', lineHeight: '1.8', whiteSpace: 'pre-wrap', margin: 0 }}>{diary.content}</p>
-        </div>
+        <div 
+            style={{ fontSize: '16px', color: '#1e293b', lineHeight: '1.8', margin: 0 }}
+            dangerouslySetInnerHTML={{ __html: diary.content }} 
+          />
       )}
 
       {/* 하단 관리 버튼 */}
