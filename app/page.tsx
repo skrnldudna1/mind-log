@@ -7,6 +7,7 @@ import GrassCalendar from './_main_components/GrassCalendar';
 import AIOverview from './_main_components/AIOverview';
 import RecentCards from './_main_components/RecentCards';
 import MonthlyStats from './_main_components/MonthlyStats';
+import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export default function HomePage() {
   const [diaries, setDiaries] = useState<any[]>([]);
@@ -22,7 +23,7 @@ export default function HomePage() {
 
   useEffect(() => {
     // 세션이 바뀔 때마다 감지하는 리스너 설정
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       if (session) {
         fetchHomeData(session.user);
       } else {
