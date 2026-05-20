@@ -40,6 +40,8 @@ MindLog는
 - 어떤 루틴이 꾸준히 유지되고 있는지
 
 같은 패턴들을 기록 속에서 발견하는 데 집중
+언제든 빠르게 기록할 수 있도록  
+모바일 환경에서는 PWA 기반 앱 형태로 사용할 수 있도록 구성
 
 ---
 
@@ -75,5 +77,8 @@ React
 TypeScript
 Tailwind CSS
 Supabase
-Google Gemini 1.5 Flash
+Google Gemini 2.5 Flash
 vercel
+Tiptap
+OAuth (Google / Kakao)
+PWA
