@@ -101,9 +101,16 @@ export default function DiaryDetailPage() {
             <div>
               {/* 카테고리별 에디터 + Tiptap 조합 */}
               {diary.category === '투자' ? (
-                <InvestmentEditor ticker={editTicker} setTicker={setEditTicker} action={editAction} setAction={setEditAction} emotion={editEmotion} setEmotion={setEditEmotion} content={editContent} setContent={setEditContent} />
+                <InvestmentEditor
+                ticker={editTicker} 
+                setTicker={setEditTicker} 
+                action={editAction} 
+                setAction={setEditAction} 
+                emotion={editEmotion} 
+                setEmotion={setEditEmotion}
+                />
               ) : (
-                <GeneralEditor category={diary.category} content={editContent} setContent={setEditContent} />
+                <GeneralEditor category={diary.category} />
               )}
               
               {/* 추가된 부분: Tiptap을 에디터 하단에 배치 (원한다면 기존 에디터 컴포넌트 내부로 옮겨도 됩니다!) */}

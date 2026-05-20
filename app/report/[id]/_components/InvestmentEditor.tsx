@@ -1,16 +1,20 @@
 'use client';
 
+import { Dispatch, SetStateAction } from 'react';
+
 interface InvestmentEditorProps {
   ticker: string;
-  setTicker: (val: string) => void;
+  setTicker: Dispatch<SetStateAction<string>>;
   action: string;
-  setAction: (val: string) => void;
+  setAction: Dispatch<SetStateAction<string>>;
   emotion: string;
-  setEmotion: (val: string) => void;
+  setEmotion: Dispatch<SetStateAction<string>>;
 }
 
 export default function InvestmentEditor({
-  ticker, setTicker, action, setAction, emotion, setEmotion
+  ticker, setTicker, 
+  action, setAction, 
+  emotion, setEmotion, 
 }: InvestmentEditorProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -62,7 +66,7 @@ export default function InvestmentEditor({
           })}
         </div>
       </div>
-      {/* 4번 자유 복기 부분은 여기서 제거되었습니다! */}
+
     </div>
   );
 }
