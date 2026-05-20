@@ -1,5 +1,3 @@
-// 투자 수정 폼 전용 컴포넌트
-
 'use client';
 
 interface InvestmentEditorProps {
@@ -9,12 +7,10 @@ interface InvestmentEditorProps {
   setAction: (val: string) => void;
   emotion: string;
   setEmotion: (val: string) => void;
-  content: string;
-  setContent: (val: string) => void;
 }
 
 export default function InvestmentEditor({
-  ticker, setTicker, action, setAction, emotion, setEmotion, content, setContent
+  ticker, setTicker, action, setAction, emotion, setEmotion
 }: InvestmentEditorProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -66,15 +62,7 @@ export default function InvestmentEditor({
           })}
         </div>
       </div>
-
-      {/* 4. 자유 복기 기록 */}
-      <div>
-        <label style={{ display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '8px' }}>4. 자유 판단 기록 (이유와 반성)</label>
-        <textarea
-          value={content} onChange={(e) => setContent(e.target.value)}
-          style={{ width: '100%', height: '150px', padding: '16px', borderRadius: '14px', border: '1px solid #cbd5e1', fontSize: '15px', lineHeight: '1.6', resize: 'none', boxSizing: 'border-box', outline: 'none' }}
-        />
-      </div>
+      {/* 4번 자유 복기 부분은 여기서 제거되었습니다! */}
     </div>
   );
 }

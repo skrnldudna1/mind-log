@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
 // 기존 컴포넌트들 그대로 유지
 import DiaryViewer from './_components/DiaryViewer';
@@ -12,10 +12,6 @@ import GeneralEditor from './_components/GeneralEditor';
 import AIReport from './_components/AIReport';
 import TiptapEditor from './_components/TiptapEditor';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function DiaryDetailPage() {
   const { id } = useParams();
@@ -39,7 +35,7 @@ export default function DiaryDetailPage() {
         setEditTicker(data.ticker || '');
         setEditAction(data.action || '');
         setEditEmotion(data.emotion || '');
-        setEditContent(data.content || ''); // DB의 HTML/텍스트가 여기 들어갑니다
+        setEditContent(data.content || '');
       }
       setLoading(false);
     };
@@ -112,7 +108,7 @@ export default function DiaryDetailPage() {
               
               {/* 추가된 부분: Tiptap을 에디터 하단에 배치 (원한다면 기존 에디터 컴포넌트 내부로 옮겨도 됩니다!) */}
               <div style={{ marginTop: '20px' }}>
-                <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>📸 이미지 삽입 에디터</p>
+                <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>자유 판단 기록</p>
                 <TiptapEditor content={editContent} onChange={setEditContent} />
               </div>
 

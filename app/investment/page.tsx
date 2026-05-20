@@ -2,14 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import TiptapEditor from '../report/[id]/_components/TiptapEditor'; // 경로를 실제 위치에 맞게 조정하세요!
 import Link from 'next/link';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function InvestmentPage() {
   const router = useRouter();
@@ -24,12 +19,12 @@ export default function InvestmentPage() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) {
-        alert('로그인이 필요한 페이지입니다. 🌸');
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) {
+        alert('로그인이 필요한 페이지입니다.');
         router.push('/');
       } else {
-        setUser(session.user);
+        setUser(user);
       }
       setAuthChecking(false);
     };
@@ -37,6 +32,7 @@ export default function InvestmentPage() {
   }, [router]);
 
   const handleAnalyze = async () => {
+    if (!user) return alert('로그인이 필요합니다.');
     if (!ticker.trim()) return alert('투자 종목을 입력해 주세요.');
     if (!action) return alert('포지션 결정을 선택해 주세요.');
     if (!emotion) return alert('진입 당시 심리를 선택해 주세요.');

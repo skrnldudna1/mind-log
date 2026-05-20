@@ -3,13 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const CATEGORIES = [
   { id: 'daily', name: '일상', emoji: '🌸', desc: '감정이나 오늘 하루 일기' },
@@ -43,32 +39,31 @@ export default function HomePage() {
     const timer = setTimeout(() => { setAuthLoading(false); }, 1000);
     const checkUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser(session.user);
-          setNickname(session.user.user_metadata?.nickname || session.user.user_metadata?.full_name || '');
+        const { data: { user }, error } = await supabase.auth.getUser();
+       if (user) {
+          setUser(user);
+          // 닉네임 설정 로직
+          const nickname = user.user_metadata?.nickname || user.user_metadata?.full_name || '';
+          setNickname(nickname);
         }
       } catch (err) {
-        console.error("유저 세션 로드 실패:", err);
+        console.error("유저 로드 실패:", err);
       } finally {
         setAuthLoading(false);
-        clearTimeout(timer);
       }
     };
+
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
-        setNickname(session.user.user_metadata?.nickname || session.user.user_metadata?.full_name || '');
       } else {
         setUser(null);
       }
-      setAuthLoading(false);
     });
 
     return () => {
-      clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);

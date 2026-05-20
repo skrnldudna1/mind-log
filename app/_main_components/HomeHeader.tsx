@@ -4,12 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabase';
 
 interface HomeHeaderProps {
   userName?: string;
@@ -25,7 +20,7 @@ export default function HomeHeader({ userName = '사용자', recordCount = 0, us
   // 📸 진짜 프로필 이미지 URL 상태
   const [avatarUrl, setAvatarUrl] = useState<string>('');
 
-  const isLoggedIn = !!userEmail;
+  const isLoggedIn = (userName !== '사용자' && userName !== '');
   
 
   // 메뉴 바깥 클릭 시 드롭다운 닫기

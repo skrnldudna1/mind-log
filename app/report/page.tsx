@@ -3,12 +3,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 const CATEGORIES = ['전체', '일상', '투자', '기록', '아이디어'];
 
@@ -21,22 +17,37 @@ export default function ReportPage() {
   const [selectedTab, setSelectedTab] = useState('전체');
   const [monthlyReport, setMonthlyReport] = useState('');
   const [isSummarizing, setIsSummarizing] = useState(false);
+  const stripHtml = (html: string) => {
+  if (!html) return '';
+  return html.replace(/<[^>]*>?/gm, '').replace(/~/g, '');
+};
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
+      setLoading(true);
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (user) {
+        setUser(user);
+        
+        // 이제 공통 supabase 객체를 사용하므로 인증 정보가 유지됩니다.
         const { data, error } = await supabase
           .from('diaries')
           .select('*')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id) // 여기를 user.id로 사용
           .order('created_at', { ascending: false });
 
-        if (!error) setDiaries(data || []);
+        if (error) {
+          console.error("데이터 조회 에러:", error);
+        } else {
+          setDiaries(data || []);
+        }
+      } else {
+        console.log("로그인된 세션 없음:", authError);
       }
       setLoading(false);
     };
+    
     fetchData();
   }, []);
 
@@ -171,7 +182,7 @@ export default function ReportPage() {
           <span style={{ fontSize: '12px', color: '#94a3b8' }}>{new Date(item.created_at).toLocaleDateString()}</span>
         </div>
         <p style={{ fontSize: '16px', color: '#1e293b', lineHeight: '1.6', margin: '0 0 16px 0', fontWeight: '600' }}>
-          {item.content}
+          {stripHtml(item.content).substring(0, 100)}
         </p>
         <div style={{ borderTop: '1px solid #f8fafc', paddingTop: '16px' }}>
           <p style={{ fontSize: '14px', color: '#475569', margin: '0' }}>

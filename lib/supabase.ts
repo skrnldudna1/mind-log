@@ -1,11 +1,19 @@
 // lib/supabase.ts
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// 1. 클라이언트 생성 함수
+const createClientInstance = () => {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+};
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('⚠️ Supabase 환경 변수가 세팅되지 않았습니다. .env.local 파일을 확인해 주세요.');
+// 2. 개발 환경에서 HMR 때문에 인스턴스가 여러 개 생기는 것을 방지
+const globalForSupabase = global as unknown as { supabase: any };
+
+export const supabase = globalForSupabase.supabase || createClientInstance();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForSupabase.supabase = supabase;
 }
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);

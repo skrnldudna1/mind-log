@@ -49,10 +49,16 @@ export default function LoginPage() {
   };
 
   // 카카오 로그인 핸들러
-  const handleKakaoLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'kakao',
-      options: { redirectTo: window.location.origin },
+const handleKakaoLogin = async () => {
+  await supabase.auth.signInWithOAuth({
+    provider: 'kakao',
+    options: {
+      // 이제 Supabase와 카카오에 등록했으니, 이 주소로 보내면 통과됩니다!
+      redirectTo: `${window.location.origin}/auth/callback`,
+      queryParams: {
+        scope: 'profile_nickname,profile_image',
+        },
+      },
     });
   };
   return (
