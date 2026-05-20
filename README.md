@@ -7,7 +7,7 @@
 ### 🚀 [클릭 시 MindLog 배포 사이트로 이동합니다!](https://mind-log-cyan.vercel.app/)
 
 
-## MindLog
+## 아직 개발중에 있습니다.
 
 ### 기록은 내가 하고, 흐름 정리는 AI가
 
