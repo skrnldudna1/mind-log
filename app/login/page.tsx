@@ -40,22 +40,21 @@ export default function LoginPage() {
     setPassword('');
   };
 
-  // 구글 로그인 핸들러
+ // 구글 로그인 핸들러
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: 'http://localhost:3000' }, // 추후 배포 주소로 변경 가능
+      options: { redirectTo: window.location.origin }, 
     });
   };
 
-  // 카카오 로그인 핸들러 🔥 추가됨!
+  // 카카오 로그인 핸들러
   const handleKakaoLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: { redirectTo: 'http://localhost:3000' },
+      options: { redirectTo: window.location.origin },
     });
   };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#FBF9F6] px-4">
       <div className="w-full max-w-md rounded-2xl border border-[#EFECE6] bg-white p-8 shadow-sm">
