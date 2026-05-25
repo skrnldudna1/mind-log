@@ -29,6 +29,8 @@
 
 ---
 
+▶️ [마인드로그 AI 서비스 상세페이지 보러가기](https://github.com/user-attachments/assets/bbd67902-9ece-4235-b054-b3b9d1b8a29a)
+
 MindLog는  
 사용자의 기록을 AI가 분석하고 흐름을 정리해주는 개인 아카이브 프로젝트
 
